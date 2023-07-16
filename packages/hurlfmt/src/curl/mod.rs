@@ -16,13 +16,12 @@
  *
  */
 
-use std::fmt;
-
 mod args;
 mod commands;
 mod matches;
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, derive_more::Display)]
+#[display(fmt = "{}: {}", "self.name", "self.value")]
 pub struct HurlOption {
     name: String,
     value: String,
@@ -34,11 +33,6 @@ impl HurlOption {
             name: name.to_string(),
             value: value.to_string(),
         }
-    }
-}
-impl fmt::Display for HurlOption {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}: {}", self.name, self.value)
     }
 }
 

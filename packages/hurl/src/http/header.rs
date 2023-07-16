@@ -15,19 +15,13 @@
  * limitations under the License.
  *
  */
-use core::fmt;
 
 /// Represents an HTTP header
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, derive_more::Display)]
+#[display(fmt = "{}: {}", "self.name", "self.value")]
 pub struct Header {
     pub name: String,
     pub value: String,
-}
-
-impl fmt::Display for Header {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}: {}", self.name, self.value)
-    }
 }
 
 impl Header {

@@ -20,14 +20,14 @@ mod interactive;
 pub(crate) mod options;
 
 use std::error::Error;
-use std::fmt;
 
 use hurl::{output, report};
 
 pub use self::fs::read_to_string;
 pub use self::options::OutputType;
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, derive_more::Display)]
+#[display(fmt = "{}", "self.message")]
 pub struct CliError {
     pub message: String,
 }
@@ -63,11 +63,5 @@ impl From<report::Error> for CliError {
 impl From<output::Error> for CliError {
     fn from(e: output::Error) -> Self {
         Self { message: e.message }
-    }
-}
-
-impl fmt::Display for CliError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.message)
     }
 }

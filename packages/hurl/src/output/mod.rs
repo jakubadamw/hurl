@@ -25,22 +25,16 @@ mod json;
 mod raw;
 mod stdout;
 
-use std::fmt;
 use std::io::Write;
 use std::path::Path;
 
 pub use self::json::write_json;
 pub use self::raw::write_body;
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, derive_more::Display)]
+#[display(fmt = "{}", "self.message")]
 pub struct Error {
     pub message: String,
-}
-
-impl fmt::Display for Error {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.message)
-    }
 }
 
 /// Writes `bytes` to the file `filename` or stdout by default.

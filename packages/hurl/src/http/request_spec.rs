@@ -49,7 +49,8 @@ impl Default for RequestSpec {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, derive_more::Display)]
+#[display(fmt = "{}", "self.0")]
 pub struct Method(pub String);
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -58,7 +59,13 @@ pub enum MultipartParam {
     FileParam(FileParam),
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, derive_more::Display)]
+#[display(
+    fmt = "{}: file,{}; {}",
+    "self.name",
+    "self.filename",
+    "self.content_type"
+)]
 pub struct FileParam {
     pub name: String,
     pub filename: String,
@@ -90,27 +97,11 @@ impl RequestSpec {
     }
 }
 
-impl fmt::Display for Method {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.0)
-    }
-}
-
 impl fmt::Display for MultipartParam {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             MultipartParam::Param(param) => write!(f, "{param}"),
             MultipartParam::FileParam(param) => write!(f, "{param}"),
         }
-    }
-}
-
-impl fmt::Display for FileParam {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(
-            f,
-            "{}: file,{}; {}",
-            self.name, self.filename, self.content_type
-        )
     }
 }
