@@ -25,14 +25,19 @@ $files += @(Get-ChildItem tests_ok/secret/secret.err.pattern)
 
 foreach ($secret in $secrets) {
     foreach ($file in $files) {
-        # Don't search leaks in sources
-        if ($file.name.EndsWith("source.html")) {
-            continue
-        }
         if (Get-Content $file | Select-String -CaseSensitive $secret) {
             echo "Secret <$secret> have leaked in $file"
             Get-Content $file
             exit 1
         }
+    }
+}
+
+# Check that secrets are actually redacted in source HTML files
+$sources = Get-ChildItem -Filter *source.html -Recurse build/secret/report-html
+foreach ($file in $sources) {
+    if (-not (Get-Content $file | Select-String -CaseSensitive '\*\*\*')) {
+        echo "No redacted secrets found in $file"
+        exit 1
     }
 }

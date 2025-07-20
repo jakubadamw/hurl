@@ -463,4 +463,14 @@ mod tests {
         fmt.push_untrusted("<?xml version=\"1.0\"?>");
         assert_eq!(fmt.buffer, "&lt;?xml version=\"1.0\"?&gt;");
     }
+
+    #[test]
+    fn test_format_standalone() {
+        let content = "GET http://example.com";
+        let file = crate::parser::parse_hurl_file(content).unwrap();
+        let html = super::format(&file, true);
+        assert!(html.starts_with("<!DOCTYPE html>"));
+        assert!(html.contains("<span class=\"method\">GET</span>"));
+        assert!(html.contains("<span class=\"url\">http://example.com</span>"));
+    }
 }

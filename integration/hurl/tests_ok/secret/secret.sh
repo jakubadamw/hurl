@@ -25,15 +25,20 @@ files=$(find build/secret/report-html/*.html \
 
 for secret in "${secrets[@]}"; do
   for file in $files; do
-    # Don't search leaks in sources
-    if [[ "$file" == *source.html ]]; then
-      continue
-    fi
     if grep -q "$secret" "$file"; then
         echo "Secret <$secret> have leaked in $file"
         cat "$file"
         exit 1
     fi
   done
+done
+
+# Check that secrets are actually redacted in source HTML files
+sources=$(find build/secret/report-html -name '*source.html')
+for file in $sources; do
+  if ! grep -q '\*\*\*' "$file"; then
+    echo "No redacted secrets found in $file"
+    exit 1
+  fi
 done
 
