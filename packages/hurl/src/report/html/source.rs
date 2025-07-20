@@ -20,9 +20,11 @@ use hurl_core::ast::{HurlFile, SourceInfo};
 use crate::report::html::nav::Tab;
 use crate::report::html::Testcase;
 use crate::runner::RunnerError;
+use crate::util::redacted::Redact;
 
 impl Testcase {
     /// Returns the HTML string of the Hurl source file (syntax colored and errors).
+    /// Secret values are redacted from the output.
     pub fn get_source_html(&self, hurl_file: &HurlFile, content: &str, secrets: &[&str]) -> String {
         let nav = self.get_nav_html(content, Tab::Source, secrets);
         let nav_css = include_str!("resources/nav.css");
@@ -40,6 +42,7 @@ impl Testcase {
             source_div = source_div,
             source_css = source_css,
         )
+        .redact(secrets)
     }
 }
 
@@ -64,4 +67,24 @@ fn get_numbered_lines(content: &str, errors: &[(RunnerError, SourceInfo)]) -> St
             });
     lines.push_str("</pre></code>");
     lines
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::report::html::Testcase;
+    use crate::runner::HurlResult;
+    use hurl_core::input::Input;
+    use hurl_core::parser;
+
+    #[test]
+    fn secrets_redacted_in_source_html() {
+        let content = "GET http://localhost\n[Headers]\nX-Secret: secret";
+        let hurl_file = parser::parse_hurl_file(content).unwrap();
+        let filename = Input::new("test.hurl");
+        let testcase = Testcase::from(&HurlResult::default(), &filename);
+        let html = testcase.get_source_html(&hurl_file, content, &["secret"]);
+        assert!(html.contains("***"));
+        assert!(!html.contains("secret"));
+    }
 }
